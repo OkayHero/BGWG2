@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Game</title>
+    <title>Buchanan Gazette Presents: The Word Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,7 +40,7 @@
             border-radius: 5px;
         }
 
-        #submit-btn, #scramble-btn, #cheat-sheet-btn {
+        #submit-btn, #scramble-btn, #cheat-sheet-btn, #new-game-btn {
             padding: 10px 20px;
             margin: 0 10px;
             font-size: 16px;
@@ -52,7 +52,7 @@
             transition: background-color 0.3s;
         }
 
-        #submit-btn:hover, #scramble-btn:hover, #cheat-sheet-btn:hover {
+        #submit-btn:hover, #scramble-btn:hover, #cheat-sheet-btn:hover, #new-game-btn:hover {
             background-color: #0056b3;
         }
 
@@ -65,10 +65,15 @@
             margin: 5px;
             font-size: 18px;
         }
+
+        #cheat-sheet {
+            display: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Word Game</h1>
+    <h1>Buchanan Gazette Presents: The Word Game</h1>
     <div id="game-container">
         <div id="current-letters"></div>
         <input type="text" id="word-input" placeholder="Enter a word">
@@ -77,6 +82,7 @@
         <button id="new-game-btn">New Game</button>
         <button id="cheat-sheet-btn">Cheat Sheet</button>
         <ul id="scored-words"></ul>
+        <div id="cheat-sheet"></div>
     </div>
 
     <script>
@@ -147,9 +153,11 @@
 
         // Function to handle cheat sheet display
         function showCheatSheet() {
+            const cheatSheet = document.getElementById('cheat-sheet');
             const validWords = JSON.parse(localStorage.getItem('validWords'));
             if (validWords) {
-                alert('Valid words:\n' + validWords.join('\n'));
+                cheatSheet.innerHTML = '<h2>Cheat Sheet</h2>' + validWords.join(', ');
+                cheatSheet.style.display = 'block';
             } else {
                 alert('No valid words found. Please start a new game.');
             }
