@@ -186,7 +186,13 @@
 
         // Event listeners
         document.getElementById('submit-btn').addEventListener('click', submitWord);
-        document.getElementById('scramble-btn').addEventListener('click', initGame);
+        document.getElementById('scramble-btn').addEventListener('click', function() {
+            initGame();
+            // Update the stored letters in localStorage after shuffling
+            const shuffledLetters = localStorage.getItem('letters');
+            const requiredLetterRegex = new RegExp(localStorage.getItem('requiredLetter'), 'i');
+            document.getElementById('current-letters').innerHTML = shuffledLetters.replace(requiredLetterRegex, '<span style="color: red;">$&</span>');
+        });
         document.getElementById('cheat-sheet-btn').addEventListener('click', showCheatSheet);
         document.getElementById('new-game-btn').addEventListener('click', initGame);
 
