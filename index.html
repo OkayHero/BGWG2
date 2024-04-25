@@ -5,7 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Word Game</title>
     <style>
-        /* Add your fancy styling here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #game-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #current-letters {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #word-input {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #submit-btn, #scramble-btn, #cheat-sheet-btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        #submit-btn:hover, #scramble-btn:hover, #cheat-sheet-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #scored-words {
+            list-style: none;
+            padding: 0;
+        }
+
+        #scored-words li {
+            margin: 5px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -50,7 +109,7 @@
                 const requiredLetterRegex = new RegExp(requiredLetter.slice(1, -1), 'i');
 
                 // Display current letters
-                document.getElementById('current-letters').textContent = letters;
+                document.getElementById('current-letters').innerHTML = letters.replace(requiredLetterRegex, '<span style="color: red;">$&</span>');
 
                 // Load word list
                 loadWordList(wordList => {
@@ -91,13 +150,33 @@
             }
         }
 
+        // Function to handle cheat sheet display
+        function showCheatSheet() {
+            // Get valid words from cookies
+            const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
+            const validWordsCookie = cookies.find(cookie => cookie[0] === 'validWords');
+            
+            if (validWordsCookie) {
+                const validWords = JSON.parse(validWordsCookie[1]);
+                alert('Valid words:\n' + validWords.join('\n'));
+            } else {
+                alert('No valid words found. Please start a new game.');
+            }
+        }
+
         // Event listeners
         document.getElementById('submit-btn').addEventListener('click', submitWord);
         document.getElementById('scramble-btn').addEventListener('click', initGame);
-        document.getElementById('cheat-sheet-btn').addEventListener('click', () => alert('Cheat sheet will be shown here.'));
+        document.getElementById('cheat-sheet-btn').addEventListener('click', showCheatSheet);
 
-        // Initialize game
-        initGame();
+        // Initialize game or load game state from cookies
+        if (document.cookie.includes('letters') && document.cookie.includes('validWords')) {
+            const lettersCookie = document.cookie.split(';').map(cookie => cookie.trim().split('=')).find(cookie => cookie[0] === 'letters');
+            const letters = lettersCookie[1];
+            document.getElementById('current-letters').innerHTML = letters.replace(/(\([^)]*\))/, '<span style="color: red;">$1</span>');
+        } else {
+            initGame();
+        }
     </script>
 </body>
 </html>
