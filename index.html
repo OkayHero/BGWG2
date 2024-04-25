@@ -106,6 +106,15 @@
                 });
         }
 
+        // Function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
         // Function to initialize the game
         function initGame() {
             loadCombinations(combinations => {
@@ -114,42 +123,54 @@
                 const selectedCombination = combinations[randomIndex];
                 const [letters, requiredLetter] = selectedCombination.split(' ');
                 const requiredLetterRegex = new RegExp(requiredLetter.slice(1, -1).replace(/\(|\)/g, ''), 'i');
-
+        
+                // Shuffle the letters
+                const shuffledLetters = shuffleArray(letters.split('')).join('');
+        
                 // Display current letters
-                document.getElementById('current-letters').innerHTML = letters.replace(requiredLetterRegex, '<span style="color: red;">$&</span>');
-
+                document.getElementById('current-letters').innerHTML = shuffledLetters.replace(requiredLetterRegex, '<span style="color: red;">$&</span>');
+        
                 // Load word list
                 loadWordList(wordList => {
                     const validWords = wordList.filter(word => {
-                        return requiredLetterRegex.test(word) && new Set(word).size <= letters.length;
+                        // Check if word can be formed with available letters
+                        const availableLetters = new Set(shuffledLetters);
+                        return requiredLetterRegex.test(word) && new Set(word).size <= availableLetters.size && [...word].every(letter => availableLetters.has(letter));
                     });
-
+        
                     // Store the state in localStorage
-                    localStorage.setItem('letters', letters);
+                    localStorage.setItem('letters', shuffledLetters);
                     localStorage.setItem('validWords', JSON.stringify(validWords));
                 });
             });
         }
-
+        
         // Function to handle word submission
         function submitWord() {
             const wordInput = document.getElementById('word-input').value.trim().toUpperCase();
             const scoredWords = document.getElementById('scored-words');
             const letters = localStorage.getItem('letters');
             const validWords = JSON.parse(localStorage.getItem('validWords'));
-
+        
             if (letters && validWords) {
                 if (wordInput.length > 0 && validWords.includes(wordInput)) {
-                    scoredWords.innerHTML += `<li>${wordInput}</li>`;
-                    // Clear input after submission
-                    document.getElementById('word-input').value = '';
+                    // Check if word can be formed with available letters
+                    const availableLetters = new Set(letters);
+                    if ([...wordInput].every(letter => availableLetters.has(letter))) {
+                        scoredWords.innerHTML += `<li>${wordInput}</li>`;
+                        // Clear input after submission
+                        document.getElementById('word-input').value = '';
+                    } else {
+                        alert('Word cannot be formed with current letters.');
+                    }
                 } else {
-                    alert('Invalid word or not possible with current letters.');
+                    alert('Invalid word.');
                 }
             } else {
                 alert('Game state not found. Please start a new game.');
             }
         }
+
 
         // Function to handle cheat sheet display
         function showCheatSheet() {
