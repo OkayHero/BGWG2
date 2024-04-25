@@ -118,9 +118,9 @@
                         return requiredLetterRegex.test(word) && new Set(word).size <= letters.length;
                     });
 
-                    // Store the state in cookies
-                    document.cookie = `letters=${letters}; max-age=3600`;
-                    document.cookie = `validWords=${JSON.stringify(validWords)}; max-age=3600`;
+                    // Store the state in localStorage
+                    localStorage.setItem('letters', letters);
+                    localStorage.setItem('validWords', JSON.stringify(validWords));
                 });
             });
         }
@@ -129,16 +129,10 @@
         function submitWord() {
             const wordInput = document.getElementById('word-input').value.trim().toUpperCase();
             const scoredWords = document.getElementById('scored-words');
+            const letters = localStorage.getItem('letters');
+            const validWords = JSON.parse(localStorage.getItem('validWords'));
 
-            // Get current letters and valid words from cookies
-            const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
-            const lettersCookie = cookies.find(cookie => cookie[0] === 'letters');
-            const validWordsCookie = cookies.find(cookie => cookie[0] === 'validWords');
-            
-            if (lettersCookie && validWordsCookie) {
-                const letters = lettersCookie[1];
-                const validWords = JSON.parse(validWordsCookie[1]);
-
+            if (letters && validWords) {
                 if (wordInput.length > 0 && validWords.includes(wordInput)) {
                     scoredWords.innerHTML += `<li>${wordInput}</li>`;
                     // Clear input after submission
@@ -153,12 +147,8 @@
 
         // Function to handle cheat sheet display
         function showCheatSheet() {
-            // Get valid words from cookies
-            const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
-            const validWordsCookie = cookies.find(cookie => cookie[0] === 'validWords');
-            
-            if (validWordsCookie) {
-                const validWords = JSON.parse(validWordsCookie[1]);
+            const validWords = JSON.parse(localStorage.getItem('validWords'));
+            if (validWords) {
                 alert('Valid words:\n' + validWords.join('\n'));
             } else {
                 alert('No valid words found. Please start a new game.');
@@ -171,11 +161,11 @@
         document.getElementById('cheat-sheet-btn').addEventListener('click', showCheatSheet);
         document.getElementById('new-game-btn').addEventListener('click', initGame);
 
-        // Initialize game or load game state from cookies
-        if (document.cookie.includes('letters') && document.cookie.includes('validWords')) {
-            const lettersCookie = document.cookie.split(';').map(cookie => cookie.trim().split('=')).find(cookie => cookie[0] === 'letters');
-            const letters = lettersCookie[1];
-            document.getElementById('current-letters').innerHTML = letters.replace(/(\([^)]*\))/, '<span style="color: red;">$1</span>');
+        // Initialize game or load game state from localStorage
+        if (localStorage.getItem('letters') && localStorage.getItem('validWords')) {
+            const letters = localStorage.getItem('letters');
+            const requiredLetterRegex = new RegExp(localStorage.getItem('requiredLetter'), 'i');
+            document.getElementById('current-letters').innerHTML = letters.replace(requiredLetterRegex, '<span style="color: red;">$&</span>');
         } else {
             initGame();
         }
