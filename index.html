@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Game</title>
+    <style>
+        /* Add your fancy styling here */
+    </style>
+</head>
+<body>
+    <h1>Word Game</h1>
+    <div id="game-container">
+        <div id="current-letters"></div>
+        <input type="text" id="word-input" placeholder="Enter a word">
+        <button id="submit-btn">Submit</button>
+        <button id="scramble-btn">Scramble</button>
+        <button id="cheat-sheet-btn">Cheat Sheet</button>
+        <ul id="scored-words"></ul>
+    </div>
+
+    <script>
+        // Function to load combinations from combinations.txt
+        function loadCombinations(callback) {
+            fetch('https://raw.githubusercontent.com/OkayHero/BGWG2/main/combinations.txt')
+                .then(response => response.text())
+                .then(text => {
+                    const combinations = text.split('\n');
+                    callback(combinations);
+                });
+        }
+
+        // Function to load word list from wordlist.txt
+        function loadWordList(callback) {
+            fetch('https://raw.githubusercontent.com/OkayHero/BGWG2/main/wordlist.txt')
+                .then(response => response.text())
+                .then(text => {
+                    const wordList = text.split('\n');
+                    callback(wordList);
+                });
+        }
+
+        // Function to initialize the game
+        function initGame() {
+            loadCombinations(combinations => {
+                // Select a random combination
+                const randomIndex = Math.floor(Math.random() * combinations.length);
+                const selectedCombination = combinations[randomIndex];
+                const [letters, requiredLetter] = selectedCombination.split(' ');
+                const requiredLetterRegex = new RegExp(requiredLetter.slice(1, -1), 'i');
+
+                // Display current letters
+                document.getElementById('current-letters').textContent = letters;
+
+                // Load word list
+                loadWordList(wordList => {
+                    const validWords = wordList.filter(word => {
+                        return requiredLetterRegex.test(word) && new Set(word).size <= letters.length;
+                    });
+
+                    // Store the state in cookies
+                    document.cookie = `letters=${letters}; max-age=3600`;
+                    document.cookie = `validWords=${JSON.stringify(validWords)}; max-age=3600`;
+                });
+            });
+        }
+
+        // Function to handle word submission
+        function submitWord() {
+            const wordInput = document.getElementById('word-input').value.trim().toUpperCase();
+            const scoredWords = document.getElementById('scored-words');
+
+            // Get current letters and valid words from cookies
+            const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
+            const lettersCookie = cookies.find(cookie => cookie[0] === 'letters');
+            const validWordsCookie = cookies.find(cookie => cookie[0] === 'validWords');
+            
+            if (lettersCookie && validWordsCookie) {
+                const letters = lettersCookie[1];
+                const validWords = JSON.parse(validWordsCookie[1]);
+
+                if (wordInput.length > 0 && validWords.includes(wordInput)) {
+                    scoredWords.innerHTML += `<li>${wordInput}</li>`;
+                    // Clear input after submission
+                    document.getElementById('word-input').value = '';
+                } else {
+                    alert('Invalid word or not possible with current letters.');
+                }
+            } else {
+                alert('Game state not found. Please start a new game.');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('submit-btn').addEventListener('click', submitWord);
+        document.getElementById('scramble-btn').addEventListener('click', initGame);
+        document.getElementById('cheat-sheet-btn').addEventListener('click', () => alert('Cheat sheet will be shown here.'));
+
+        // Initialize game
+        initGame();
+    </script>
+</body>
+</html>
