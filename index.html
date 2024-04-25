@@ -74,6 +74,7 @@
         <input type="text" id="word-input" placeholder="Enter a word">
         <button id="submit-btn">Submit</button>
         <button id="scramble-btn">Scramble</button>
+        <button id="new-game-btn">New Game</button>
         <button id="cheat-sheet-btn">Cheat Sheet</button>
         <ul id="scored-words"></ul>
     </div>
@@ -168,6 +169,7 @@
         document.getElementById('submit-btn').addEventListener('click', submitWord);
         document.getElementById('scramble-btn').addEventListener('click', initGame);
         document.getElementById('cheat-sheet-btn').addEventListener('click', showCheatSheet);
+        document.getElementById('new-game-btn').addEventListener('click', initGame);
 
         // Initialize game or load game state from cookies
         if (document.cookie.includes('letters') && document.cookie.includes('validWords')) {
