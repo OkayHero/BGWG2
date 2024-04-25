@@ -107,7 +107,7 @@
                 const randomIndex = Math.floor(Math.random() * combinations.length);
                 const selectedCombination = combinations[randomIndex];
                 const [letters, requiredLetter] = selectedCombination.split(' ');
-                const requiredLetterRegex = new RegExp(requiredLetter.slice(1, -1), 'i');
+                const requiredLetterRegex = new RegExp(requiredLetter.slice(1, -1).replace(/\(|\)/g, ''), 'i');
 
                 // Display current letters
                 document.getElementById('current-letters').innerHTML = letters.replace(requiredLetterRegex, '<span style="color: red;">$&</span>');
